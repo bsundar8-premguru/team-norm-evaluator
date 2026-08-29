@@ -751,41 +751,24 @@ collapseAllBtn.addEventListener('click', () => {
   collapseAllBtn.textContent = anyOpen ? 'Expand all' : 'Collapse all';
 });
 
-evaluateBtn.addEventListener('click', async () => {
+evaluateBtn.addEventListener('click', () => {
   const text = normInput.value.trim();
 
   if (!text) {
     normInput.focus();
+    normInput.setAttribute('aria-invalid', 'true');
     return;
   }
 
-  try {
-    const response = await fetch(
-      "https://team-norm-evaluator.bsundar8.workers.dev/",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          norms: text
-        })
-      }
-    );
+  normInput.removeAttribute('aria-invalid');
 
-    const data = await response.json();
-
-    console.log("Cloudflare response:", data);
-
-    alert("Success! The webpage connected to Cloudflare.");
-
-  } catch (error) {
-    console.error("Connection error:", error);
-
-    alert("Could not connect to Cloudflare.");
-  }
+  // Frontend prototype only. Replace this block with the Cloudflare Worker fetch call.
+  resultsSection.hidden = false;
+  requestAnimationFrame(() => {
+    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 });
-
+    
   </script>
 </body>
 </html>
