@@ -706,7 +706,9 @@ const charCount = document.getElementById('charCount');
 const evaluateBtn = document.getElementById('evaluateBtn');
 const resultsSection = document.getElementById('resultsSection');
 const collapseAllBtn = document.getElementById('collapseAllBtn');
-const accordionItems = [...document.querySelectorAll('.accordion-item')];
+const accordion = document.getElementById('accordion');
+const WORKER_URL = "https://team-norm-evaluator.bsundar8.workers.dev/";
+//const accordionItems = [...document.querySelectorAll('.accordion-item')];
 
 const savedTheme = localStorage.getItem('teamNormTheme');
 const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
