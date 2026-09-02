@@ -751,7 +751,7 @@ collapseAllBtn.addEventListener('click', () => {
   collapseAllBtn.textContent = anyOpen ? 'Expand all' : 'Collapse all';
 });
 
-evaluateBtn.addEventListener('click', () => {
+evaluateBtn.addEventListener('click', async () => {
   const text = normInput.value.trim();
 
   if (!text) {
@@ -762,11 +762,41 @@ evaluateBtn.addEventListener('click', () => {
 
   normInput.removeAttribute('aria-invalid');
 
-  // Frontend prototype only. Replace this block with the Cloudflare Worker fetch call.
-  resultsSection.hidden = false;
-  requestAnimationFrame(() => {
-    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
+  try {
+    const response = await fetch(
+      "https://team-norm-evaluator.bsundar8.workers.dev/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          norms: text
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Evaluation failed.");
+    }
+
+    console.log("CreateAI response:", data);
+
+    resultsSection.hidden = false;
+
+    requestAnimationFrame(() => {
+      resultsSection.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    });
+
+  } catch (error) {
+    console.error("Evaluation error:", error);
+    alert("The evaluator could not complete the request. Please try again.");
+  }
 });
     
   </script>
