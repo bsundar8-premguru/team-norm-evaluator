@@ -777,12 +777,12 @@ evaluateBtn.addEventListener('click', async () => {
     );
 
     const data = await response.json();
-
+    const feedback = JSON.parse(data.response);
     if (!response.ok) {
       throw new Error(data.error || "Evaluation failed.");
     }
 
-    console.log("CreateAI response:", data);
+    console.log("Parsed feedback:", feedback);
 
     resultsSection.hidden = false;
 
