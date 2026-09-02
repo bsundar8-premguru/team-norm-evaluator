@@ -486,6 +486,82 @@ textarea:hover {
   border: 0;
 }
 
+.primary-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.primary-button:disabled:hover {
+  transform: none;
+  background: var(--primary);
+}
+
+.usage-button {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 20;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 10px 15px;
+
+  background: var(--surface-strong);
+  color: var(--text);
+
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+
+  box-shadow: 0 8px 24px rgba(40, 35, 65, 0.12);
+}
+
+.usage-panel {
+  position: fixed;
+  left: 20px;
+  bottom: 72px;
+  z-index: 20;
+
+  width: min(260px, calc(100vw - 40px));
+  padding: 16px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+
+  background: var(--surface-strong);
+  color: var(--text);
+
+  box-shadow: 0 14px 40px rgba(40, 35, 65, 0.16);
+}
+
+.usage-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.usage-close {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.usage-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 7px 0;
+  font-size: 0.86rem;
+}
+
+.usage-row span {
+  color: var(--muted);
+}
+  
 @media (max-width: 720px) {
   .page-shell {
     padding-top: 44px;
@@ -599,12 +675,8 @@ textarea:hover {
             </button>
             <div class="accordion-content">
               <div class="accordion-inner">
-                <p>Your norms already establish a positive foundation by addressing respectful communication, shared responsibility, and completing agreed-upon work.</p>
-                <div class="strength-grid">
-                  <div class="mini-card"><strong>Respect</strong><span>Expectations for how teammates interact are present.</span></div>
-                  <div class="mini-card"><strong>Responsibility</strong><span>Your team recognizes that members have individual commitments.</span></div>
-                  <div class="mini-card"><strong>Communication</strong><span>You acknowledge that teammates need to keep one another informed.</span></div>
-                </div>
+                <p id="overallFeedback"></p>
+                <div id="strengthsList" class="strength-grid"></div>
               </div>
             </div>
           </article>
@@ -619,20 +691,7 @@ textarea:hover {
             </button>
             <div class="accordion-content">
               <div class="accordion-inner">
-                <div class="feedback-block">
-                  <p class="feedback-label">Current norm</p>
-                  <blockquote>“We will communicate respectfully.”</blockquote>
-                  <p class="feedback-label">Why this may be difficult</p>
-                  <p>“Respectfully” can mean different things to different people, especially during disagreement or under deadline pressure.</p>
-                  <div class="question-box">
-                    <p class="feedback-label">Questions to consider</p>
-                    <ul>
-                      <li>What behaviors would show respect during a disagreement?</li>
-                      <li>How should teammates raise concerns about another member’s work?</li>
-                      <li>What communication behaviors should your team avoid?</li>
-                    </ul>
-                  </div>
-                </div>
+                <div id="strengthsList" class="strength-grid"></div>
               </div>
             </div>
           </article>
@@ -647,20 +706,7 @@ textarea:hover {
             </button>
             <div class="accordion-content">
               <div class="accordion-inner">
-                <div class="topic-list">
-                  <div class="topic-card">
-                    <h3>Accountability</h3>
-                    <p>What should happen when a teammate cannot complete an agreed-upon task?</p>
-                  </div>
-                  <div class="topic-card">
-                    <h3>Decision making</h3>
-                    <p>How will your team make decisions when members have different opinions?</p>
-                  </div>
-                  <div class="topic-card">
-                    <h3>Internal deadlines</h3>
-                    <p>Will your team set deadlines before the official due date so there is time to review work?</p>
-                  </div>
-                </div>
+                <div id="topicsList" class="topic-list"></div>
               </div>
             </div>
           </article>
@@ -677,12 +723,7 @@ textarea:hover {
               <div class="accordion-inner">
                 <div class="reflection-card">
                   <p>Before revising your norms, discuss these questions together:</p>
-                  <ol>
-                    <li>Which norms could different teammates interpret differently?</li>
-                    <li>Which expectations need clearer actions or boundaries?</li>
-                    <li>What situations could create tension later in the project?</li>
-                    <li>What agreement would help your team handle those situations well?</li>
-                  </ol>
+                  <ol id="reflectionList"></ol>
                 </div>
               </div>
             </div>
@@ -696,6 +737,48 @@ textarea:hover {
     <p>Designed to support team reflection, not replace team decision-making.</p>
   </footer>
 
+<button
+  id="usageBtn"
+  class="usage-button"
+  type="button"
+  hidden
+>
+  Usage
+</button>
+
+<div
+  id="usagePanel"
+  class="usage-panel"
+  hidden
+>
+  <div class="usage-panel-header">
+    <strong>AI Usage</strong>
+    <button
+      id="usageCloseBtn"
+      class="usage-close"
+      type="button"
+      aria-label="Close usage information"
+    >
+      ×
+    </button>
+  </div>
+
+  <div class="usage-row">
+    <span>Input tokens</span>
+    <strong id="inputTokens">—</strong>
+  </div>
+
+  <div class="usage-row">
+    <span>Output tokens</span>
+    <strong id="outputTokens">—</strong>
+  </div>
+
+  <div class="usage-row">
+    <span>Cost</span>
+    <strong id="usageCost">—</strong>
+  </div>
+</div>
+  
   <script>
 const root = document.documentElement;
 const themeToggle = document.getElementById('themeToggle');
@@ -706,6 +789,19 @@ const charCount = document.getElementById('charCount');
 const evaluateBtn = document.getElementById('evaluateBtn');
 const resultsSection = document.getElementById('resultsSection');
 const collapseAllBtn = document.getElementById('collapseAllBtn');
+const overallFeedback = document.getElementById('overallFeedback');
+const strengthsList = document.getElementById('strengthsList');
+const reconsiderList = document.getElementById('reconsiderList');
+const topicsList = document.getElementById('topicsList');
+const reflectionList = document.getElementById('reflectionList');
+
+const usageBtn = document.getElementById('usageBtn');
+const usagePanel = document.getElementById('usagePanel');
+const usageCloseBtn = document.getElementById('usageCloseBtn');
+
+const inputTokens = document.getElementById('inputTokens');
+const outputTokens = document.getElementById('outputTokens');
+const usageCost = document.getElementById('usageCost');
 const accordion = document.getElementById('accordion');
 const accordionItems = [...document.querySelectorAll('.accordion-item')];
 
@@ -751,7 +847,107 @@ collapseAllBtn.addEventListener('click', () => {
   collapseAllBtn.textContent = anyOpen ? 'Expand all' : 'Collapse all';
 });
 
+function escapeHTML(value = '') {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function renderFeedback(feedback) {
+
+  overallFeedback.textContent = feedback.overall_feedback;
+
+
+  strengthsList.innerHTML = feedback.strengths
+    .map(item => `
+      <div class="mini-card">
+        <strong>${escapeHTML(item.title)}</strong>
+        <span>${escapeHTML(item.explanation)}</span>
+      </div>
+    `)
+    .join('');
+
+
+  reconsiderList.innerHTML = feedback.norms_to_reconsider
+    .map(item => {
+
+      const questions = item.questions
+        .map(question => `
+          <li>${escapeHTML(question)}</li>
+        `)
+        .join('');
+
+      return `
+        <div class="feedback-block">
+
+          <p class="feedback-label">Current norm</p>
+
+          <blockquote>
+            “${escapeHTML(item.current_norm)}”
+          </blockquote>
+
+          <p class="feedback-label">
+            Why this is worth discussing
+          </p>
+
+          <p>${escapeHTML(item.reason)}</p>
+
+          <div class="question-box">
+
+            <p class="feedback-label">
+              Questions to consider
+            </p>
+
+            <ul>
+              ${questions}
+            </ul>
+
+          </div>
+
+        </div>
+      `;
+    })
+    .join('');
+
+
+  topicsList.innerHTML = feedback.topics_to_discuss
+    .map(item => {
+
+      const questions = item.questions
+        .map(question => `
+          <li>${escapeHTML(question)}</li>
+        `)
+        .join('');
+
+      return `
+        <div class="topic-card">
+
+          <h3>${escapeHTML(item.topic)}</h3>
+
+          <p>${escapeHTML(item.reason)}</p>
+
+          <ul>
+            ${questions}
+          </ul>
+
+        </div>
+      `;
+    })
+    .join('');
+
+
+  reflectionList.innerHTML = feedback.team_reflection
+    .map(question => `
+      <li>${escapeHTML(question)}</li>
+    `)
+    .join('');
+}
+    
 evaluateBtn.addEventListener('click', async () => {
+
   const text = normInput.value.trim();
 
   if (!text) {
@@ -762,42 +958,139 @@ evaluateBtn.addEventListener('click', async () => {
 
   normInput.removeAttribute('aria-invalid');
 
+
+  // Prevent duplicate requests
+  evaluateBtn.disabled = true;
+
+  const originalButtonHTML = evaluateBtn.innerHTML;
+
+  evaluateBtn.innerHTML = `
+    <span>Evaluating...</span>
+  `;
+
+
   try {
+
     const response = await fetch(
       "https://team-norm-evaluator.bsundar8.workers.dev/",
       {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json"
         },
+
         body: JSON.stringify({
           norms: text
         })
       }
     );
 
+
     const data = await response.json();
-    const feedback = JSON.parse(data.response);
+
+
     if (!response.ok) {
-      throw new Error(data.error || "Evaluation failed.");
+      throw new Error(
+        data.error || "Evaluation failed."
+      );
     }
 
-    console.log("Parsed feedback:", feedback);
+
+    const feedback = JSON.parse(data.response);
+
+
+    // Put AI feedback into existing accordion
+    renderFeedback(feedback);
+
+
+    // Show latest token/cost information
+    renderUsage(data.metadata);
+
 
     resultsSection.hidden = false;
 
+
     requestAnimationFrame(() => {
+
       resultsSection.scrollIntoView({
         behavior: 'smooth',
         block: 'start'
       });
+
     });
 
+
   } catch (error) {
+
     console.error("Evaluation error:", error);
-    alert("The evaluator could not complete the request. Please try again.");
+
+    alert(
+      "The evaluator could not complete the request. Please try again."
+    );
+
+  } finally {
+
+    // Re-enable only when the request is completely finished
+    evaluateBtn.disabled = false;
+
+    evaluateBtn.innerHTML = originalButtonHTML;
+
   }
+
 });
+usageBtn.addEventListener('click', () => {
+  usagePanel.hidden = !usagePanel.hidden;
+});
+
+usageCloseBtn.addEventListener('click', () => {
+  usagePanel.hidden = true;
+});
+
+function renderUsage(metadata) {
+
+  const usage = metadata?.usage_metric || {};
+
+  const input =
+    usage.input_tokens ??
+    usage.prompt_tokens ??
+    usage.input_token_count ??
+    '—';
+
+  const output =
+    usage.output_tokens ??
+    usage.completion_tokens ??
+    usage.output_token_count ??
+    '—';
+
+  const cost =
+    usage.cost ??
+    usage.total_cost ??
+    usage.total_cost_usd ??
+    usage.estimated_cost ??
+    '—';
+
+
+  inputTokens.textContent =
+    typeof input === 'number'
+      ? input.toLocaleString()
+      : input;
+
+
+  outputTokens.textContent =
+    typeof output === 'number'
+      ? output.toLocaleString()
+      : output;
+
+
+  usageCost.textContent =
+    typeof cost === 'number'
+      ? `$${cost.toFixed(6)}`
+      : cost;
+
+
+  usageBtn.hidden = false;
+}
     
   </script>
 </body>
