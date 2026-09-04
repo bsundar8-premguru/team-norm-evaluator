@@ -379,13 +379,7 @@ textarea:hover {
   line-height: 1.7;
 }
 
-.strength-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 16px;
-}
-
+.strength-grid,
 .topic-list {
   display: grid;
   grid-template-columns: 1fr;
@@ -402,15 +396,19 @@ textarea:hover {
 
 .mini-card {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   background: var(--pastel-mint);
-  padding: 14px;
+  padding: 16px;
+}
+
+.mini-card strong {
+  font-size: 1rem;
 }
 
 .mini-card span {
   color: var(--muted);
-  font-size: 0.88rem;
-  line-height: 1.5;
+  font-size: 0.9rem;
+  line-height: 1.6;
 }
 
 .feedback-block blockquote {
@@ -563,6 +561,154 @@ textarea:hover {
   color: var(--muted);
 }
 
+
+.results-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.input-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.run-status {
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.print-norms {
+  display: none;
+}
+
+@media print {
+  @page {
+    margin: 0.65in;
+  }
+
+  :root,
+  [data-theme="dark"] {
+    color-scheme: light;
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-strong: #ffffff;
+    --text: #1f1f26;
+    --muted: #55515f;
+    --border: #d9d6df;
+    --pastel-lavender: #f3f0fa;
+    --pastel-blue: #eef5f8;
+    --pastel-mint: #edf7f1;
+    --pastel-peach: #fbf1e9;
+    --pastel-rose: #f8eef3;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  body {
+    font-size: 10.5pt;
+  }
+
+  .topbar,
+  .input-card,
+  .footer,
+  .usage-button,
+  .usage-panel,
+  .results-actions,
+  .chevron {
+    display: none !important;
+  }
+
+  .page-shell {
+    width: 100%;
+    padding: 0;
+  }
+
+  .hero {
+    padding: 0 0 18px;
+    text-align: left;
+  }
+
+  .hero h1 {
+    font-size: 28pt;
+    letter-spacing: -0.03em;
+  }
+
+  .workspace {
+    gap: 18px;
+  }
+
+  .print-norms {
+    display: block;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+  }
+
+  .print-norms h2 {
+    margin: 0 0 10px;
+    font-size: 15pt;
+  }
+
+  .print-norms-text {
+    white-space: pre-wrap;
+    line-height: 1.55;
+    color: var(--text);
+  }
+
+  .results-panel {
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: #ffffff;
+  }
+
+  .results-heading {
+    margin-bottom: 12px;
+  }
+
+  .accordion {
+    gap: 10px;
+  }
+
+  .accordion-item {
+    break-inside: avoid;
+    background: #ffffff;
+  }
+
+  .accordion-trigger {
+    padding: 13px 15px;
+  }
+
+  .accordion-content,
+  .accordion-item.open .accordion-content {
+    grid-template-rows: 1fr !important;
+  }
+
+  .accordion-inner,
+  .accordion-item.open .accordion-inner {
+    overflow: visible;
+    padding: 0 15px 15px;
+  }
+
+  .mini-card,
+  .topic-card,
+  .question-box,
+  .reflection-card,
+  .feedback-block {
+    break-inside: avoid;
+  }
+}
+
 @media (max-width: 720px) {
   .page-shell {
     padding-top: 44px;
@@ -648,7 +794,10 @@ textarea:hover {
         ></textarea>
 
         <div class="input-footer">
-          <span id="charCount" class="char-count">0 / 12,000</span>
+          <div class="input-meta">
+            <span id="charCount" class="char-count">0 / 12,000</span>
+            <span id="runStatus" class="run-status" aria-live="polite"></span>
+          </div>
           <button id="evaluateBtn" class="primary-button" type="button">
             <span>Evaluate Team Norms</span>
             <span class="button-arrow" aria-hidden="true">→</span>
@@ -656,13 +805,22 @@ textarea:hover {
         </div>
       </div>
 
+      <section id="printNormsSection" class="print-norms" aria-label="Submitted team norms">
+        <p class="section-kicker">Submitted team norms</p>
+        <h2>Team Norms</h2>
+        <div id="printNormsText" class="print-norms-text"></div>
+      </section>
+
       <section id="resultsSection" class="results-panel" aria-labelledby="feedback-title" hidden>
         <div class="results-heading">
           <div>
             <p class="section-kicker">Reflective feedback</p>
             <h2 id="feedback-title">What your team should consider</h2>
           </div>
-          <button id="collapseAllBtn" class="text-button" type="button">Collapse all</button>
+          <div class="results-actions">
+            <button id="downloadPdfBtn" class="text-button" type="button" title="Open a print-ready version you can save as PDF">Download as PDF</button>
+            <button id="collapseAllBtn" class="text-button" type="button">Collapse all</button>
+          </div>
         </div>
 
         <div id="accordion" class="accordion">
@@ -773,6 +931,9 @@ const charCount = document.getElementById('charCount');
 const evaluateBtn = document.getElementById('evaluateBtn');
 const resultsSection = document.getElementById('resultsSection');
 const collapseAllBtn = document.getElementById('collapseAllBtn');
+const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+const runStatus = document.getElementById('runStatus');
+const printNormsText = document.getElementById('printNormsText');
 const accordionItems = [...document.querySelectorAll('.accordion-item')];
 
 const overallFeedback = document.getElementById('overallFeedback');
@@ -829,6 +990,28 @@ collapseAllBtn.addEventListener('click', () => {
   });
   collapseAllBtn.textContent = anyOpen ? 'Expand all' : 'Collapse all';
 });
+
+
+function clearFeedback() {
+  overallFeedback.textContent = '';
+  strengthsList.innerHTML = '';
+  reconsiderList.innerHTML = '';
+  topicsList.innerHTML = '';
+  reflectionList.innerHTML = '';
+
+  accordionItems.forEach((item, index) => {
+    const trigger = item.querySelector('.accordion-trigger');
+    const shouldOpen = index === 0;
+    item.classList.toggle('open', shouldOpen);
+    trigger.setAttribute('aria-expanded', String(shouldOpen));
+  });
+
+  collapseAllBtn.textContent = 'Collapse all';
+}
+
+function formatSeconds(milliseconds) {
+  return `${(milliseconds / 1000).toFixed(1)} s`;
+}
 
 function escapeHTML(value = '') {
   return String(value)
@@ -895,9 +1078,9 @@ function renderUsage(metadata) {
     return;
   }
 
-  const input = usage.input_token_count;
-  const output = usage.output_token_count;
-  const cost = usage.total_token_cost;
+  const input = Number(usage.input_token_count);
+  const output = Number(usage.output_token_count);
+  const cost = Number(usage.total_token_cost);
 
   inputTokens.textContent = Number.isFinite(input) ? input.toLocaleString() : '—';
   outputTokens.textContent = Number.isFinite(output) ? output.toLocaleString() : '—';
@@ -914,6 +1097,11 @@ usageCloseBtn.addEventListener('click', () => {
   usagePanel.hidden = true;
 });
 
+downloadPdfBtn.addEventListener('click', () => {
+  printNormsText.textContent = normInput.value.trim();
+  window.print();
+});
+
 evaluateBtn.addEventListener('click', async () => {
   const text = normInput.value.trim();
 
@@ -924,12 +1112,25 @@ evaluateBtn.addEventListener('click', async () => {
   }
 
   normInput.removeAttribute('aria-invalid');
-  evaluateBtn.disabled = true;
+
+  // Start every evaluation with a clean result area.
+  resultsSection.hidden = true;
+  clearFeedback();
   usageBtn.hidden = true;
   usagePanel.hidden = true;
+  inputTokens.textContent = '—';
+  outputTokens.textContent = '—';
+  usageCost.textContent = '—';
 
+  evaluateBtn.disabled = true;
   const originalButtonHTML = evaluateBtn.innerHTML;
   evaluateBtn.innerHTML = '<span>Evaluating…</span>';
+
+  const startedAt = performance.now();
+  runStatus.textContent = 'Evaluating · 0.0 s';
+  const timerId = window.setInterval(() => {
+    runStatus.textContent = `Evaluating · ${formatSeconds(performance.now() - startedAt)}`;
+  }, 100);
 
   try {
     const response = await fetch(WORKER_URL, {
@@ -952,15 +1153,20 @@ evaluateBtn.addEventListener('click', async () => {
 
     renderFeedback(feedback);
     renderUsage(data.metadata);
+    printNormsText.textContent = text;
 
     resultsSection.hidden = false;
+    runStatus.textContent = `Completed in ${formatSeconds(performance.now() - startedAt)}`;
+
     requestAnimationFrame(() => {
       resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   } catch (error) {
     console.error('Evaluation error:', error);
+    runStatus.textContent = `Stopped after ${formatSeconds(performance.now() - startedAt)}`;
     alert('The evaluator could not complete the request. Please try again.');
   } finally {
+    window.clearInterval(timerId);
     evaluateBtn.disabled = false;
     evaluateBtn.innerHTML = originalButtonHTML;
   }
